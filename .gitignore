@@ -61,3 +61,7 @@ docs/_build/
 
 # PyBuilder
 target/
+
+# Ignore any output files that may be used for output for assignments
+output.txt
+*submission*.txt
