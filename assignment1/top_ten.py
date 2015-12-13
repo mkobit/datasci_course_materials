@@ -1,4 +1,5 @@
 from collections import Counter
+from operator import itemgetter
 import json
 import sys
 
@@ -10,7 +11,9 @@ def main():
             if 'entities' in message and message['entities']['hashtags']:
                 hashtags = message['entities']['hashtags']
                 hashtags_counter.update([hashtag['text'].encode('utf-8') for hashtag in hashtags])
-        for hashtag, count in hashtags_counter.items():
+        ordered_hashtags = sorted([(hashtag, count) for hashtag, count in hashtags_counter.items()],
+            key=itemgetter(1), reverse=True)
+        for hashtag, count in ordered_hashtags[:10]:
             print('{}\t{}'.format(hashtag, count))
 
 if __name__ == '__main__':
