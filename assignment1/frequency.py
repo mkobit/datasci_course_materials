@@ -1,3 +1,4 @@
+from collections import Counter
 import json
 from operator import itemgetter
 import re
@@ -42,28 +43,21 @@ def clean_tweet(tweet, substitute=' ', remove_hashtags=False,
             .replace('!', ' ')
 
 def main():
-    scores = {}
-    with open(sys.argv[1]) as sentiments_file:
-        for line in sentiments_file:
-            term, score = line.split('\t')
-            scores[term] = int(score)
-
-    def compute_sentiment(text):
-        score = 0
-        for term in scores:
-            if term in text:
-                score += scores[term]
-        return score
-
-    with open(sys.argv[2]) as tweet_file:
+    with open(sys.argv[1]) as tweet_file:
+        terms_counter = Counter()
         for line in tweet_file:
             message = json.loads(line)
-            score = 0
             cleaned_text = clean_tweet(message, remove_user_mentions=True,
                 remove_urls=True, remove_media=True)
             if cleaned_text:
-                score = compute_sentiment(cleaned_text)
-            print(score)
+                split_text = cleaned_text.split()
+                terms_counter.update(split_text)
+
+        # The frequency of a term can be calculated as [# of occurrences of the term in all tweets]/[# of occurrences of all terms in all tweets]
+        total_terms = float(sum(terms_counter.values()))
+        for key, value in terms_counter.items():
+            frequency = float(value) / total_terms
+            print("{}\t{}".format(key, frequency))
 
 if __name__ == '__main__':
     main()
